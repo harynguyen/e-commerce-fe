@@ -328,5 +328,11 @@
   "ratings": "ratings",
   "comments": "comments",
   "Product_details": "Details product", 
-  "From_3.5_to_5.0": "From 3.5 to 5"
+  "From_3.5_to_5.0": "From 3.5 to 5", 
+  "Order_name_user": "Order name user",
+  "Item_price": "Item price",
+  "Shipping_price": "Shipping price", 
+  "Create_order": "Create order",
+  "Is_delivered": "Is delivered", 
+  "Is_paid":"Is paid"
 }
