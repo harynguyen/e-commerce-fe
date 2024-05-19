@@ -65,14 +65,13 @@ import { createCommentAsync } from 'src/stores/comments/actions'
 
 type TProps = {}
 
-
 const DetailsProductPage: NextPage<TProps> = () => {
   // State
   const [loading, setLoading] = useState(false)
   const [dataProduct, setDataProduct] = useState<TProduct | any>({})
   const [listRelatedProduct, setRelatedProduct] = useState<TProduct[]>([])
   const [listReviews, setListReview] = useState<TReviewItem[]>([])
-  const [listComment, setListComment] = useState<{ data: TCommentItemProduct[], total: number }>({
+  const [listComment, setListComment] = useState<{ data: TCommentItemProduct[]; total: number }>({
     data: [],
     total: 0
   })
@@ -99,7 +98,7 @@ const DetailsProductPage: NextPage<TProps> = () => {
     isErrorDelete,
     isSuccessDelete,
     messageErrorDelete,
-    typeError,
+    typeError
   } = useSelector((state: RootState) => state.reviews)
 
   const {
@@ -121,7 +120,7 @@ const DetailsProductPage: NextPage<TProps> = () => {
   const dispatch: AppDispatch = useDispatch()
 
   // fetch api
-  const fetchGetDetailsProduct = async (slug: string, isViewed?:boolean) => {
+  const fetchGetDetailsProduct = async (slug: string, isViewed?: boolean) => {
     setLoading(true)
     await getDetailsProductPublicBySlug(slug, isViewed)
       .then(async response => {
@@ -140,7 +139,11 @@ const DetailsProductPage: NextPage<TProps> = () => {
     setLoading(true)
     await getAllReviews({
       params: {
-        limit: -1, page: -1, order: "createdAt desc", isPublic: true, ...formatFilter({ productId: id }),
+        limit: -1,
+        page: -1,
+        order: 'createdAt desc',
+        isPublic: true,
+        ...formatFilter({ productId: id })
       }
     })
       .then(async response => {
@@ -170,9 +173,11 @@ const DetailsProductPage: NextPage<TProps> = () => {
       })
   }
 
-  const fetchListCommentProduct = async (productId:string) => {
+  const fetchListCommentProduct = async (productId: string) => {
     setLoading(true)
-    await getAllCommentsPublic({ params: { limit: -1, page: -1, order: "createdAt desc", isPublic: true, productId: productId} })
+    await getAllCommentsPublic({
+      params: { limit: -1, page: -1, order: 'createdAt desc', isPublic: true, productId: productId }
+    })
       .then(async response => {
         setLoading(false)
         const data = response?.data
@@ -232,15 +237,16 @@ const DetailsProductPage: NextPage<TProps> = () => {
     )
   }
 
-
   const handleComment = (comment: string) => {
     if (comment) {
       if (user) {
-        dispatch(createCommentAsync({
-          product: dataProduct._id,
-          user: user?._id,
-          content: comment
-        }))
+        dispatch(
+          createCommentAsync({
+            product: dataProduct._id,
+            user: user?._id,
+            content: comment
+          })
+        )
       } else {
         router.replace({
           pathname: ROUTE_CONFIG.LOGIN,
@@ -251,7 +257,7 @@ const DetailsProductPage: NextPage<TProps> = () => {
   }
 
   const findCommentByIdRecursive = (comments: TCommentItemProduct[], id: string): undefined | TCommentItemProduct => {
-    const findComment: undefined | TCommentItemProduct = comments.find((item) => item._id === id)
+    const findComment: undefined | TCommentItemProduct = comments.find(item => item._id === id)
     if (findComment) return findComment
 
     for (const comment of comments) {
@@ -265,7 +271,7 @@ const DetailsProductPage: NextPage<TProps> = () => {
   }
 
   const deleteCommentByIdRecursive = (comments: TCommentItemProduct[], id: string): undefined | TCommentItemProduct => {
-    const index = comments.findIndex((item) => item._id === id)
+    const index = comments.findIndex(item => item._id === id)
     if (index !== -1) {
       const item = comments[index]
       comments.splice(index, 1)
@@ -285,8 +291,8 @@ const DetailsProductPage: NextPage<TProps> = () => {
 
   const deleteManyCommentRecursive = (comments: TCommentItemProduct[], ids: string[]) => {
     let deletedCount: number = 0
-    ids.forEach((id) => {
-      const index = comments.findIndex((item) => item._id === id)
+    ids.forEach(id => {
+      const index = comments.findIndex(item => item._id === id)
       if (index !== -1) {
         comments.splice(index, 1)
         deletedCount += 1
@@ -310,10 +316,8 @@ const DetailsProductPage: NextPage<TProps> = () => {
         <CommentItem item={item} />
         {item.replies && item?.replies?.length > 0 && (
           <>
-            {item.replies?.map((reply) => {
-              return (
-                <>{renderCommentItem(reply, level)}</>
-              )
+            {item.replies?.map(reply => {
+              return <>{renderCommentItem(reply, level)}</>
             })}
           </>
         )}
@@ -325,7 +329,7 @@ const DetailsProductPage: NextPage<TProps> = () => {
     const socket = connectSocketIO()
     const cloneListComment = cloneDeep(listComment)
 
-    socket.on(ACTION_SOCKET_COMMENT.CREATE_COMMENT, (data) => {
+    socket.on(ACTION_SOCKET_COMMENT.CREATE_COMMENT, data => {
       const newListComment = cloneListComment.data
       newListComment.unshift({ ...data })
 
@@ -335,12 +339,11 @@ const DetailsProductPage: NextPage<TProps> = () => {
       })
     })
 
-
-    socket.on(ACTION_SOCKET_COMMENT.REPLY_COMMENT, (data) => {
+    socket.on(ACTION_SOCKET_COMMENT.REPLY_COMMENT, data => {
       const parentId = data.parent
       const findParent = cloneListComment?.data?.find((item: TCommentItemProduct) => item?._id === parentId)
       if (findParent) {
-        console.log("findParent", {findParent, data})
+        console.log('findParent', { findParent, data })
         findParent?.replies?.push({ ...data })
         setListComment({
           data: cloneListComment.data,
@@ -349,7 +352,7 @@ const DetailsProductPage: NextPage<TProps> = () => {
       }
     })
 
-    socket.on(ACTION_SOCKET_COMMENT.UPDATE_COMMENT, (data) => {
+    socket.on(ACTION_SOCKET_COMMENT.UPDATE_COMMENT, data => {
       const findComment = findCommentByIdRecursive(cloneListComment.data, data._id)
       if (findComment) {
         findComment.content = data.content
@@ -357,7 +360,7 @@ const DetailsProductPage: NextPage<TProps> = () => {
       }
     })
 
-    socket.on(ACTION_SOCKET_COMMENT.DELETE_COMMENT, (data) => {
+    socket.on(ACTION_SOCKET_COMMENT.DELETE_COMMENT, data => {
       const deleteComment = deleteCommentByIdRecursive(cloneListComment.data, data._id)
       if (deleteComment) {
         const totalDelete = (deleteComment?.replies ? deleteComment?.replies?.length : 0) + 1
@@ -368,7 +371,7 @@ const DetailsProductPage: NextPage<TProps> = () => {
       }
     })
 
-    socket.on(ACTION_SOCKET_COMMENT.DELETE_MULTIPLE_COMMENT, (data) => {
+    socket.on(ACTION_SOCKET_COMMENT.DELETE_MULTIPLE_COMMENT, data => {
       const deletedCount = deleteManyCommentRecursive(cloneListComment.data, data)
       setListComment({
         data: cloneListComment.data,
@@ -410,7 +413,6 @@ const DetailsProductPage: NextPage<TProps> = () => {
         toast.error(t(errorConfig))
       } else {
         toast.error(t('Update_review_error'))
-
       }
       dispatch(resetInitialState())
     }
@@ -474,10 +476,12 @@ const DetailsProductPage: NextPage<TProps> = () => {
     <>
       {(loading || isLoadingComment) && <Spinner />}
       <Grid container>
-        <Box
-          marginTop={{ md: 5, xs: 4 }}
-        >
-          <Typography sx={{ color: theme.palette.primary.main, fontWeight: "600", marginBottom: "8px"}}>{t("Product_details")}{" / "}{dataProduct.type?.name}{" "}/{" "}{dataProduct?.name}</Typography>
+        <Box marginTop={{ md: 5, xs: 4 }}>
+          <Typography sx={{ color: theme.palette.primary.main, fontWeight: '600', marginBottom: '8px' }}>
+            {t('Product_details')}
+            {' / '}
+            {dataProduct.type?.name} / {dataProduct?.name}
+          </Typography>
         </Box>
         <Grid
           container
@@ -486,7 +490,6 @@ const DetailsProductPage: NextPage<TProps> = () => {
           xs={12}
           sx={{ backgroundColor: theme.palette.background.paper, borderRadius: '15px', py: 5, px: 4 }}
         >
-
           <Box sx={{ height: '100%', width: '100%' }}>
             <Grid container spacing={8}>
               <Grid item md={5} xs={12}>
@@ -522,7 +525,9 @@ const DetailsProductPage: NextPage<TProps> = () => {
                 </Box>
                 <Typography variant='body2' color='text.secondary'>
                   {dataProduct.countInStock > 0 ? (
-                    <>{t('Still')}{" "} <b>{dataProduct?.countInStock}</b>{" "}<span>{t("product_in_stock")}</span></>
+                    <>
+                      {t('Still')} <b>{dataProduct?.countInStock}</b> <span>{t('product_in_stock')}</span>
+                    </>
                   ) : (
                     <Box
                       sx={{
@@ -544,7 +549,7 @@ const DetailsProductPage: NextPage<TProps> = () => {
                           whiteSpace: 'nowrap'
                         }}
                       >
-                        Hết hàng
+                        Sold out
                       </Typography>
                     </Box>
                   )}
@@ -579,9 +584,7 @@ const DetailsProductPage: NextPage<TProps> = () => {
                   <Typography sx={{ display: 'flex', alignItems: 'center' }}>
                     {dataProduct.totalReviews > 0 ? (
                       <span>
-                        <b>{dataProduct.totalReviews}</b>
-                        {" "}
-                        {t('Review')}
+                        <b>{dataProduct.totalReviews}</b> {t('Review')}
                       </span>
                     ) : (
                       <span>{t('not_review')}</span>
@@ -781,14 +784,8 @@ const DetailsProductPage: NextPage<TProps> = () => {
         </Grid>
         <Grid container md={12} xs={12} mt={6}>
           <Grid container>
-            <Grid
-              container
-              item
-              md={9}
-              xs={12}
-
-            >
-              <Box sx={{ width: "100%" }}>
+            <Grid container item md={9} xs={12}>
+              <Box sx={{ width: '100%' }}>
                 <Box sx={{ backgroundColor: theme.palette.background.paper, borderRadius: '15px', py: 5, px: 4 }}>
                   <Box
                     sx={{
@@ -825,8 +822,14 @@ const DetailsProductPage: NextPage<TProps> = () => {
                   />
                 </Box>
                 <Box
-                  display={{ md: "block", xs: "none" }}
-                  sx={{ backgroundColor: theme.palette.background.paper, borderRadius: '15px', py: 5, px: 4, width: "100%" }}
+                  display={{ md: 'block', xs: 'none' }}
+                  sx={{
+                    backgroundColor: theme.palette.background.paper,
+                    borderRadius: '15px',
+                    py: 5,
+                    px: 4,
+                    width: '100%'
+                  }}
                   marginTop={{ md: 5, xs: 4 }}
                 >
                   <Typography
@@ -837,9 +840,10 @@ const DetailsProductPage: NextPage<TProps> = () => {
                       fontSize: '18px'
                     }}
                   >
-                    {t('Review_product')} <b style={{ color: theme.palette.primary.main }}>{listReviews?.length}</b> {t("ratings")}
+                    {t('Review_product')} <b style={{ color: theme.palette.primary.main }}>{listReviews?.length}</b>{' '}
+                    {t('ratings')}
                   </Typography>
-                  <Box sx={{ width: "100%" }}>
+                  <Box sx={{ width: '100%' }}>
                     <CustomCarousel
                       arrows
                       showDots={true}
@@ -865,7 +869,7 @@ const DetailsProductPage: NextPage<TProps> = () => {
                     >
                       {listReviews.map((review: TReviewItem) => {
                         return (
-                          <Box key={review._id} sx={{ margin: "0 10px" }}>
+                          <Box key={review._id} sx={{ margin: '0 10px' }}>
                             <CardReview item={review} />
                           </Box>
                         )
@@ -874,8 +878,14 @@ const DetailsProductPage: NextPage<TProps> = () => {
                   </Box>
                 </Box>
                 <Box
-                  display={{ md: "block", xs: "none" }}
-                  sx={{ backgroundColor: theme.palette.background.paper, borderRadius: '15px', py: 5, px: 4, width: "100%" }}
+                  display={{ md: 'block', xs: 'none' }}
+                  sx={{
+                    backgroundColor: theme.palette.background.paper,
+                    borderRadius: '15px',
+                    py: 5,
+                    px: 4,
+                    width: '100%'
+                  }}
                   marginTop={{ md: 5, xs: 4 }}
                 >
                   <Typography
@@ -884,25 +894,21 @@ const DetailsProductPage: NextPage<TProps> = () => {
                       color: `rgba(${theme.palette.customColors.main}, 0.68)`,
                       fontWeight: 'bold',
                       fontSize: '18px',
-                      mb: "8px"
+                      mb: '8px'
                     }}
                   >
-                    {t('Comment_product')} <b style={{ color: theme.palette.primary.main }}>{listComment?.total}</b> {t("comments")}
+                    {t('Comment_product')} <b style={{ color: theme.palette.primary.main }}>{listComment?.total}</b>{' '}
+                    {t('comments')}
                   </Typography>
-                  <Box sx={{ width: "100%" }}>
+                  <Box sx={{ width: '100%' }}>
                     <CommentInput onApply={handleComment} />
-                    <Box sx={{ display: "flex", flexDirection: "column", gap: "8px", marginTop: "30px" }}>
+                    <Box sx={{ display: 'flex', flexDirection: 'column', gap: '8px', marginTop: '30px' }}>
                       {listComment?.data?.map((comment: TCommentItemProduct) => {
                         const level: number = -1
 
-                        return (
-                          <Fragment key={comment._id}>
-                            {renderCommentItem(comment, level)}
-                          </Fragment>
-                        )
+                        return <Fragment key={comment._id}>{renderCommentItem(comment, level)}</Fragment>
                       })}
                     </Box>
-
                   </Box>
                 </Box>
               </Box>
@@ -949,9 +955,7 @@ const DetailsProductPage: NextPage<TProps> = () => {
                   {loading ? (
                     <Box sx={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
                       {Array.from({ length: 6 }).map((_, index) => {
-                        return (
-                          <CardSkeletonRelated key={index} />
-                        )
+                        return <CardSkeletonRelated key={index} />
                       })}
                     </Box>
                   ) : (
@@ -969,13 +973,18 @@ const DetailsProductPage: NextPage<TProps> = () => {
                       )}
                     </>
                   )}
-
                 </Box>
               </Box>
             </Grid>
             <Box
-              display={{ md: "none", xs: "block" }}
-              sx={{ backgroundColor: theme.palette.background.paper, borderRadius: '15px', py: 5, px: 4, width: "100%" }}
+              display={{ md: 'none', xs: 'block' }}
+              sx={{
+                backgroundColor: theme.palette.background.paper,
+                borderRadius: '15px',
+                py: 5,
+                px: 4,
+                width: '100%'
+              }}
               marginTop={{ md: 5, xs: 4 }}
             >
               <Typography
@@ -986,9 +995,10 @@ const DetailsProductPage: NextPage<TProps> = () => {
                   fontSize: '18px'
                 }}
               >
-                {t('Review_product')} <b style={{ color: theme.palette.primary.main }}>{listReviews?.length}</b> {t("ratings")}
+                {t('Review_product')} <b style={{ color: theme.palette.primary.main }}>{listReviews?.length}</b>{' '}
+                {t('ratings')}
               </Typography>
-              <Box sx={{ width: "100%" }}>
+              <Box sx={{ width: '100%' }}>
                 <CustomCarousel
                   arrows
                   showDots={true}
@@ -1014,7 +1024,7 @@ const DetailsProductPage: NextPage<TProps> = () => {
                 >
                   {listReviews.map((review: TReviewItem) => {
                     return (
-                      <Box key={review._id} sx={{ margin: "0 10px" }}>
+                      <Box key={review._id} sx={{ margin: '0 10px' }}>
                         <CardReview item={review} />
                       </Box>
                     )
@@ -1023,8 +1033,14 @@ const DetailsProductPage: NextPage<TProps> = () => {
               </Box>
             </Box>
             <Box
-              display={{ md: "none", xs: "block" }}
-              sx={{ backgroundColor: theme.palette.background.paper, borderRadius: '15px', py: 5, px: 4, width: "100%" }}
+              display={{ md: 'none', xs: 'block' }}
+              sx={{
+                backgroundColor: theme.palette.background.paper,
+                borderRadius: '15px',
+                py: 5,
+                px: 4,
+                width: '100%'
+              }}
               marginTop={{ md: 5, xs: 4 }}
             >
               <Typography
@@ -1035,22 +1051,27 @@ const DetailsProductPage: NextPage<TProps> = () => {
                   fontSize: '18px'
                 }}
               >
-                {t('Comment_product')} <b style={{ color: theme.palette.primary.main }}>{listComment?.total}</b> {t("comments")}
+                {t('Comment_product')} <b style={{ color: theme.palette.primary.main }}>{listComment?.total}</b>{' '}
+                {t('comments')}
               </Typography>
-              <Box sx={{ width: "100%" }}>
+              <Box sx={{ width: '100%' }}>
                 <CommentInput onApply={handleComment} />
-                <Box sx={{ display: "flex", flexDirection: "column", gap: "8px", marginTop: "30px", maxHeight: "300px", overflow: "auto" }}>
+                <Box
+                  sx={{
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: '8px',
+                    marginTop: '30px',
+                    maxHeight: '300px',
+                    overflow: 'auto'
+                  }}
+                >
                   {listComment?.data?.map((comment: TCommentItemProduct) => {
                     const level: number = -1
 
-                    return (
-                      <Fragment key={comment._id}>
-                        {renderCommentItem(comment, level)}
-                      </Fragment>
-                    )
+                    return <Fragment key={comment._id}>{renderCommentItem(comment, level)}</Fragment>
                   })}
                 </Box>
-
               </Box>
             </Box>
           </Grid>

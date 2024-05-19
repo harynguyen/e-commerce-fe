@@ -243,7 +243,7 @@ const NotificationDropdown = (props: Props) => {
                     }}
                 >
                     <Button fullWidth variant='contained' onClick={handleMarkReadAllNotification}>
-                        {t("Mark read all notifications")}
+                        {t("Mark_read_all_notifications")}
                     </Button>
                 </MenuItem>
             </Menu>

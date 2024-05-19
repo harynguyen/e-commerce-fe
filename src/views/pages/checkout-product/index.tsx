@@ -62,7 +62,7 @@ type TProps = {}
 
 const CheckoutProductPage: NextPage<TProps> = () => {
   // State
-  const [optionPayments, setOptionPayments] = useState<{ label: string; value: string, type: string }[]>([])
+  const [optionPayments, setOptionPayments] = useState<{ label: string; value: string; type: string }[]>([])
   const [optionDeliveries, setOptionDeliveries] = useState<{ label: string; value: string; price: string }[]>([])
   const [paymentSelected, setPaymentSelected] = useState('')
   const [deliverySelected, setDeliverySelected] = useState('')
@@ -148,22 +148,21 @@ const CheckoutProductPage: NextPage<TProps> = () => {
     setPaymentSelected(value)
   }
 
-  const handlePaymentVNPay = async (data: { orderId: string, totalPrice: number }) => {
+  const handlePaymentVNPay = async (data: { orderId: string; totalPrice: number }) => {
     setLoading(true)
     await createURLpaymentVNPay({
       totalPrice: data.totalPrice,
       orderId: data?.orderId,
-      language: i18n.language === "vi" ? "vn" : i18n.language
-    }).then((res) => {
+      language: i18n.language === 'vi' ? 'vn' : i18n.language
+    }).then(res => {
       if (res?.data) {
         window.open(res?.data, '_blank')
       }
       setLoading(false)
     })
-
   }
 
-  const handlePaymentTypeOrder = (type: string, data: { orderId: string, totalPrice: number }) => {
+  const handlePaymentTypeOrder = (type: string, data: { orderId: string; totalPrice: number }) => {
     switch (type) {
       case PAYMENT_DATA.VN_PAYMENT.value: {
         handlePaymentVNPay(data)
@@ -176,9 +175,9 @@ const CheckoutProductPage: NextPage<TProps> = () => {
 
   const handleOrderProduct = () => {
     const totalPrice = memoPriceShipping + Number(memoQueryProduct.totalPrice)
-    if(!memoAddressDefault) {
+    if (!memoAddressDefault) {
       setOpenAddress(true)
-      
+
       return
     }
     dispatch(
@@ -190,11 +189,11 @@ const CheckoutProductPage: NextPage<TProps> = () => {
         user: user ? user?._id : '',
         fullName: memoAddressDefault
           ? toFullName(
-            memoAddressDefault?.lastName,
-            memoAddressDefault?.middleName,
-            memoAddressDefault?.firstName,
-            i18n.language
-          )
+              memoAddressDefault?.lastName,
+              memoAddressDefault?.middleName,
+              memoAddressDefault?.firstName,
+              i18n.language
+            )
           : '',
         address: memoAddressDefault ? memoAddressDefault.address : '',
         city: memoAddressDefault ? memoAddressDefault.city : '',
@@ -202,13 +201,13 @@ const CheckoutProductPage: NextPage<TProps> = () => {
         shippingPrice: memoPriceShipping,
         totalPrice: totalPrice
       })
-    ).then((res) => {
+    ).then(res => {
       const idPaymentMethod = res?.payload?.data?.paymentMethod
       const orderId = res?.payload?.data?._id
       const totalPrice = res?.payload?.data?.totalPrice
-      const findPayment = optionPayments.find((item) => item.value === idPaymentMethod)
+      const findPayment = optionPayments.find(item => item.value === idPaymentMethod)
       if (findPayment) {
-        handlePaymentTypeOrder(findPayment.type, { totalPrice, orderId, })
+        handlePaymentTypeOrder(findPayment.type, { totalPrice, orderId })
       }
     })
   }
@@ -220,7 +219,7 @@ const CheckoutProductPage: NextPage<TProps> = () => {
       .then(res => {
         if (res.data) {
           setOptionPayments(
-            res?.data?.paymentTypes?.map((item: { name: string; _id: string, type: string }) => ({
+            res?.data?.paymentTypes?.map((item: { name: string; _id: string; type: string }) => ({
               label: item.name,
               value: item._id,
               type: item.type
@@ -604,7 +603,7 @@ const CheckoutProductPage: NextPage<TProps> = () => {
             fontWeight: 'bold'
           }}
         >
-          {t('Đặt hàng')}
+          {t('Order')}
         </Button>
       </Box>
     </>

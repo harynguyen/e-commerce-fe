@@ -38,13 +38,13 @@ const CustomPagination = React.forwardRef((props: TProps, ref: Ref<any>) => {
         <>
           {rowLength > 0 ? (
             <Box>
-              <span>{t('Đang hiển thị')} </span>
+              <span>{t('Showing')} </span>
               <span style={{ fontWeight: 'bold' }}>
                 {page === 1 ? page : 1 + pageSize}
                 {' - '}
               </span>
               <span style={{ fontWeight: 'bold' }}>{page * pageSize < rowLength ? page * pageSize : rowLength} </span>
-              <span>{t('trên')} </span>
+              <span>{t('on')} </span>
               <span style={{ fontWeight: 'bold' }}>{rowLength}</span>
             </Box>
           ) : (
@@ -55,7 +55,7 @@ const CustomPagination = React.forwardRef((props: TProps, ref: Ref<any>) => {
       <Box sx={{ display: 'flex', gap: '4px', alignItems: 'center' }}>
         {!isHideShowed && (
           <Box sx={{ display: 'flex', gap: '4px', alignItems: 'center' }}>
-            <span>{t('Số dòng hiển thị')}</span>
+            <span>{t('line_number_display')}</span>
             <Select
               size='small'
               sx={{

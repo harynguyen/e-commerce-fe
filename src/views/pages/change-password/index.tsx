@@ -72,14 +72,8 @@ const ChangePasswordPage: NextPage<TProps> = () => {
   const theme = useTheme()
 
   const schema = yup.object().shape({
-    currentPassword: yup
-      .string()
-      .required(t('Required_field'))
-      .matches(PASSWORD_REG, t('Rules_password')),
-    newPassword: yup
-      .string()
-      .required(t('Required_field'))
-      .matches(PASSWORD_REG, t('Rules_password')),
+    currentPassword: yup.string().required(t('Required_field')).matches(PASSWORD_REG, t('Rules_password')),
+    newPassword: yup.string().required(t('Required_field')).matches(PASSWORD_REG, t('Rules_password')),
     confirmNewPassword: yup
       .string()
       .required(t('Required_field'))
@@ -130,8 +124,7 @@ const ChangePasswordPage: NextPage<TProps> = () => {
         sx={{
           backgroundColor: theme.palette.background.paper,
           display: 'flex',
-          alignItems: 'center',
-          padding: '40px'
+          alignItems: 'center'
         }}
       >
         <Box
@@ -181,12 +174,11 @@ const ChangePasswordPage: NextPage<TProps> = () => {
                     <CustomTextField
                       required
                       fullWidth
-                      
                       label={t('Current_password')}
                       onChange={onChange}
                       onBlur={onBlur}
                       value={value}
-                      placeholder={t("Enter_password")}
+                      placeholder={t('Enter_password')}
                       error={Boolean(errors?.currentPassword)}
                       helperText={errors?.currentPassword?.message}
                       type={showCurrentPassword ? 'text' : 'password'}
@@ -219,7 +211,6 @@ const ChangePasswordPage: NextPage<TProps> = () => {
                     <CustomTextField
                       required
                       fullWidth
-                      
                       label={t('New_password')}
                       onChange={onChange}
                       onBlur={onBlur}
@@ -257,7 +248,6 @@ const ChangePasswordPage: NextPage<TProps> = () => {
                     <CustomTextField
                       required
                       fullWidth
-                      
                       label={t('Confirm_new_password')}
                       onChange={onChange}
                       onBlur={onBlur}
