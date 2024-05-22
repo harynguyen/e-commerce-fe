@@ -346,6 +346,13 @@
   "Mark_read_all_notifications": "Mark read all notifications", 
   "Showing": "Showing", 
   "on": "on", 
-  "line_number_display": "Line number display"
+  "line_number_display": "Line number display", 
+  "Title_delete_order_product": "Title delete order product", 
+  "Update_order_product_success": "Update order product success", 
+  "Confirm_delete_order_product": "Confirm delete order product",
+  "Product_items": "Product items",
+  "Total_price": "Total price", 
+  "Product_name": "Product name"
+  
 
 }

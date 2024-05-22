@@ -206,7 +206,7 @@ const CreateEditProduct = (props: TCreateEditProduct) => {
             status: data.status ? 1 : 0,
             id: idProduct,
             countInStock: Number(data.countInStock),
-            location: data.location,
+            location: data.location
           })
         )
       } else {
@@ -487,6 +487,7 @@ const CreateEditProduct = (props: TCreateEditProduct) => {
                             <CustomTextField
                               required
                               fullWidth
+                              type='number'
                               label={t('Price')}
                               onChange={onChange}
                               onBlur={onBlur}
